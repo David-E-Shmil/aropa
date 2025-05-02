@@ -214,7 +214,7 @@ function table( ) {
 function assmtHeading( $title, &$assmt ) {
   if( ! empty( $title ) )
     $title .= ': ';
-  $aname = trim($assmt['aname']) == '' ? _('(unnamed assignment)') : $assmt['aname'];
+  $aname = trim((string) $assmt['aname']) == '' ? _('(unnamed assignment)') : $assmt['aname'];
   return HTML::h2($title, $aname, HTML::small(' (#' . $assmt['assmtID'], ')'));
 }
 
@@ -293,7 +293,7 @@ function formatTimeString( $time, $format = 'full' ) {
 
 
 function date_to_mysql( $str ) {
-  $str = trim( $str );
+  $str = trim( (string) $str );
   if( ! empty( $str ) ) {
     $d = strtotime( $str );
     if( $d === false || $d == -1 )
@@ -306,7 +306,7 @@ function date_to_mysql( $str ) {
 
 
 function date_and_time( $str, $dfltTime = '12:00' ) {
-  $time = strtotime( $str );
+  $time = strtotime( (string) $str );
   if( $time == false || $time == -1 )
     return array( '', $dfltTime );
   else
@@ -482,18 +482,18 @@ function expand_latest( $path ) {
   //- submission is stored separately.  E.g.,
   //-  <<se250>>/A2/unsorted/<<author>>/Submission<<latest>>/Files
   foreach( $simpleExpansions as $pat => $exp ) {
-    $p = strpos($path, $pat );
+    $p = strpos((string) $path, (string) $pat );
     if( $p !== false )
-      $path = substr( $path, 0, $p ) . $exp . substr( $path, $p + strlen($pat) );
+      $path = substr( (string) $path, 0, $p ) . $exp . substr( (string) $path, $p + strlen((string) $pat) );
   }
 
-  $p = strpos($path, '<<latest>>' );
+  $p = strpos((string) $path, '<<latest>>' );
   if( $p !== false ) {
-    $prefix = substr( $path, 0, $p );
-    $suffix = substr( $path, $p + strlen('<<latest>>') );
+    $prefix = substr( (string) $path, 0, $p );
+    $suffix = substr( (string) $path, $p + strlen('<<latest>>') );
     $matches = glob( "$prefix*");
     if( $matches && count($matches) > 0 )
-      $path = substr($path, 0, $p) . substr(array_pop($matches), $p) . $suffix;
+      $path = substr((string) $path, 0, $p) . substr(array_pop($matches), $p) . $suffix;
   }
   return $path;
 }
@@ -635,10 +635,10 @@ function checkREQUEST( ) {
   $ret = array( );
   foreach( func_get_args() as $arg ) {
     $opt = $arg[0] == '?';
-    if( $opt ) $arg = substr( $arg, 1 );
+    if( $opt ) $arg = substr( (string) $arg, 1 );
 
     $int = $arg[0] == '_';
-    if( $int ) $arg = substr( $arg, 1 );
+    if( $int ) $arg = substr( (string) $arg, 1 );
 
     if( ! isset( $_REQUEST[ $arg ] ) ) {
       if( ! $opt )
@@ -673,7 +673,7 @@ function instLogo( ) {
   if( ! empty( $logo['logoType'] ) ) {
     header('Accept-Ranges: bytes');
     header("Content-Type: $logo[logoType]");
-    header('Content-Length: ' . strlen($logo['logo']) );
+    header('Content-Length: ' . strlen((string) $logo['logo']) );
     echo $logo['logo'];
   } else {
     header( 'HTTP/1.1 303 See Other' );
@@ -691,7 +691,7 @@ function isTestClass($cname) {
   if (isDisusedClass($cname) || isArchiveClass($ctest))
     return false;
   else
-    return strpos($cname, 'TEST') !== false || preg_match('/\btest\b/i', $cname);
+    return strpos((string) $cname, 'TEST') !== false || preg_match('/\btest\b/i', (string) $cname);
 }
 
 function isArchiveClass($cname) {
@@ -711,11 +711,11 @@ function isNotTestOrDisusedClass( $cname ) {
 }
 
 function sortAssmtBySubmissionEnd($a1, $a2) {
-  return strcmp($a1['submissionEnd'], $a2['submissionEnd']);
+  return strcmp((string) $a1['submissionEnd'], (string) $a2['submissionEnd']);
 }
 
 function sortAssmtByReviewEnd($a1, $a2) {
-  return strcmp($a1['reviewEnd'], $a2['reviewEnd']);
+  return strcmp((string) $a1['reviewEnd'], (string) $a2['reviewEnd']);
 }
 
 
@@ -906,7 +906,7 @@ function assignmentLinks($cid, $assmtList, $nextWeek, $lastWeek, &$classOrder) {
     //- Display the most recently completed and next two upcoming assignments
     $firstFuture = count($assmtList) - 1;
     foreach ($assmtList as $i => $assmt )
-      if ($now < strtotime($assmt['submissionEnd']))
+      if ($now < strtotime((string) $assmt['submissionEnd']))
 	$firstFuture = $i;
     if (count($assmtList) - $firstFuture < 3)
       $start = max(0, count($assmtList) - 3);
@@ -916,7 +916,7 @@ function assignmentLinks($cid, $assmtList, $nextWeek, $lastWeek, &$classOrder) {
     
     for ($i = $start; $i < $end; $i++) {
       $assmt = $assmtList[$i];
-      $submitEnd = strtotime($assmt['submissionEnd']);
+      $submitEnd = strtotime((string) $assmt['submissionEnd']);
       $colour = $submitEnd > $lastWeek && $submitEnd < $nextWeek ? 'red' : 'blue';
       if (!$assmt['isActive']) $colour = 'black';
       $alinks->pushContent(
@@ -1154,7 +1154,7 @@ function isBlessed( ) {
 }
 
 function class_order( $c1, $c2 ) {
-  return strcasecmp( $c1['cname'], $c2['cname'] );
+  return strcasecmp( (string) $c1['cname'], (string) $c2['cname'] );
 }
 
 
@@ -1218,7 +1218,7 @@ function instructorClassView( $cid, $class ) {
   $ul = HTML::ul(array('class'=>"list-unstyled"));
   $n = 0;
   while( $row = $rs->fetch_assoc() ) {
-    if( trim($row['aname']) == '' )
+    if( trim((string) $row['aname']) == '' )
       $row['aname'] = '(unnamed assignment)';
     $li = HTML::li( HTML::span(callback_url($row['aname'], "viewAssignment&cid=$cid&assmtID=$row[assmtID]"),
 			       ': submission end: ', formatDateString( $row['submissionEnd'] ),

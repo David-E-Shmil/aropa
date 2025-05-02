@@ -92,7 +92,7 @@ function Aropa( $case = 'sentence' ) {
 function stripslashes_deep( $value ) {
   return is_array( $value )
     ? array_map( 'stripslashes_deep', $value )
-    : stripslashes( $value );
+    : stripslashes( (string) $value );
 }
 
 if( (function_exists("get_magic_quotes_gpc") && get_magic_quotes_gpc())
@@ -107,7 +107,7 @@ if( (function_exists("get_magic_quotes_gpc") && get_magic_quotes_gpc())
 //ini_set( 'zlib.output_compression', 1 );
 
 if( ( isset( $_REQUEST['download'] ) || isset( $_REQUEST['essay'] ) )
-    && strpos( $_SERVER['HTTP_USER_AGENT'], 'MSIE' ) !== false
+    && strpos( (string) $_SERVER['HTTP_USER_AGENT'], 'MSIE' ) !== false
     ) {
   //- see last entry in http://php3.de/manual/en/function.session-cache-limiter.php
   session_cache_limiter('public');
@@ -417,7 +417,7 @@ function Debug($text) {
   global $gAreDebugging;
   if (!$gAreDebugging)
     return;
-  if (strpos($_SERVER['HTTP_USER_AGENT'], 'FirePHP') !== false && file_exists('fb.php')) {
+  if (strpos((string) $_SERVER['HTTP_USER_AGENT'], 'FirePHP') !== false && file_exists('fb.php')) {
     require_once 'fb.php';
     fb($text);
   } else {
@@ -540,7 +540,7 @@ function printDocumentAndExit( $title, $body, $moreHeaders = "" ) {
 					  'type'=>'text/css',
 					  'href'=>'resources/css/style.css')));
 
-  $head = HTML::head(HTML::base(array('href'=>"$_SERVER[REQUEST_SCHEME]://$_SERVER[SERVER_NAME]:$_SERVER[SERVER_PORT]" . dirname($_SERVER['PHP_SELF']) . '/')),
+  $head = HTML::head(HTML::base(array('href'=>"$_SERVER[REQUEST_SCHEME]://$_SERVER[SERVER_NAME]:$_SERVER[SERVER_PORT]" . dirname((string) $_SERVER['PHP_SELF']) . '/')),
 		     HTML::meta(array('http-equiv'=>'Content-Type',
 				       'content'   =>'text/html; charset=utf-8') ),
 		      HTML::meta(array('http-equiv'=>"X-UA-Compatible", 'content'=>"IE=edge")),
